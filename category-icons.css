@@ -1,2 +1,1 @@
-.row-icon.category-icon{display:block;width:40px;height:40px;flex:0 0 40px;object-fit:contain;padding:5px;border-radius:6px;background:var(--bg);border:1px solid var(--line2)}
-.form-row:hover .row-icon.category-icon{border-color:var(--lime)}
+.row-icon.category-icon{display:block;width:46px;height:46px;flex:0 0 46px;object-fit:contain;padding:6px;border-radius:16px;background:linear-gradient(145deg,#4a3d8f,#2b2352);border:2px solid #fff;box-shadow:0 0 0 2px var(--c,#8a6cff),0 4px 0 var(--c,#8a6cff)}
