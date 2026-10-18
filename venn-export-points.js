@@ -2,7 +2,7 @@
 (() => {
   const heading = () => document.getElementById('venn-mod-turns');
   if (heading()) heading().textContent = 'Bản chạy cục bộ · không cần đăng nhập';
-  window.vennCheckExport = async count => ({ id: 'local-' + crypto.randomUUID(), user: 'local', count: Number(count) || 1, local: true });
+  window.vennCheckExport = async count => ({ id: 'local-' + (window.vennUUID ? window.vennUUID() : String(Date.now()) + Math.random().toString(16).slice(2)), user: 'local', count: Number(count) || 1, local: true });
   window.vennChargeExport = async ticket => {
     if (!ticket || !ticket.local) throw new Error('Phiên xuất cục bộ không hợp lệ.');
     if (heading()) heading().textContent = 'Bản chạy cục bộ · không trừ điểm';

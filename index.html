@@ -3,14 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>
+/* Tương thích HTTP/iOS cũ: crypto.randomUUID chỉ có trên HTTPS nên tự tạo UUID thay thế */
+(function(){
+  function uuid(){
+    var b=new Uint8Array(16);
+    try{ if(window.crypto&&crypto.getRandomValues) crypto.getRandomValues(b); else throw 0; }
+    catch(e){ for(var i=0;i<16;i++) b[i]=Math.floor(Math.random()*256); }
+    b[6]=(b[6]&15)|64; b[8]=(b[8]&63)|128;
+    var h=[]; for(var j=0;j<16;j++) h.push((b[j]+256).toString(16).slice(1));
+    return h[0]+h[1]+h[2]+h[3]+'-'+h[4]+h[5]+'-'+h[6]+h[7]+'-'+h[8]+h[9]+'-'+h[10]+h[11]+h[12]+h[13]+h[14]+h[15];
+  }
+  window.vennUUID=uuid;
+  try{ if(window.crypto&&typeof crypto.randomUUID!=='function') crypto.randomUUID=uuid; }catch(e){}
+})();
+</script>
+
   <meta name="theme-color" content="#fff6fa">
-  <title>VennLMAO · Studio phối đồ Alok</title>
+  <title>VennLMAO · Studio phối đồ Alok</title><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEJUlEQVR42u1bS2sTURQ+M02mj2geIwWpFKFFKA0uipHQoqIbN4KICFLsRiiof0BEtyJdiaBS3CgI4hO7UFeiFgutwVREqNQ+IqKWQnGapK80TRkX9Y73DvPOzbySu5m5zE3LeXzn+86ZhAGfrdR4WjzQ32f4fAB8uBq3bTd8loUqX1XvAMbrBgS7OkR8v6v3BOw4e0rar2V+EOenz18hIBLwO+aZ4iaIXF0NAjUH+IUGufZWUQyHpH0i/Yp4XhQWoTCZkfYNHW1bn+NjUBQWve8AMRwiMC83qiRkFTGvZHwNAn50QICPEgygtNaWl7yjA7j2VrGhZae03/N8kHhemMwQKR+MRggnfDnaR0AmP/KRqSoIMPmVGg3WHOClXmDg1nXx2uOH0j4+/IigMDnmG9t2kwXu5Vv4dfepKuY9nwFaur4qICCntpKQrS4HyDMApzxP9gLBrg4R8fTa8hLcD5UIrs+PjmtifvrkBWJ/+XQvXNLBvasyABcpZmZ5NRpUWUe6D3kLAoW5ecDbW73Cx/Exqbvj+Jj0eaT43o29p6sDuPZWUet5cfanKS0RPrif+HtybV8SsrCRzRnGfN4E3i1BQC86vpfCTH7FFU4ol+/LqgF6HZWZhffiAAB8IAhCaUMX8+iKY55GYEwXwejhbmKfBRC1aoIe5n9PzZC6IBqR5ngAAOnEMXIEZrLmUKFBLU+L4RCVSDDFTdUJTiVX2RCgBQ/aTY6nhJATkbc8D5DrgpZzZ6T7pmYeZq7eJM7v/TAkzeQ5Pga59GdSCst4/s+9ZyC8eEON523NgNUFQVks/RtooKuTEafmgHIKn8jVucYJlh2gV/z0HISKHh8IVkzkVKwZwpsPPQfh7+eZ4iY0YhwPAJA63k/sX98YhOTFAcbVGWAk+koZ4BTVVSQDtBxBUzq70gFeMpC6DjCjCwAA5u48AJrzBNfqACO0iM64acZAzQFqsMCNRmfcBCGWRuS1OkLcaDdOl0zjr6czIibjPKQm/sveZJyX7m9/KoFWTVj9liHnCcNjxH7kyRAk9yVsqwuWWAAZjxtuVigpnXciQyxBABmemhCITCiXJp2oDWw5GYCcoeQE3+iAns6IqBR9HPOJ+jyk18OQqM/D6Ncco6UT5Es+YyxMfYfC3LxtOoE1k/JKmMeNp9k621UPWDMpr5TqyPj0etgQtvVo00oRrTgLqFV7PANoFjvECHY4IaCH0WQ8IEUfL3jI6OJsjgHYepc3akHrZ2XvFezOANZo+uNZYDbiZvBup/GEA9QwqZb+WkXPCv/jMwY7BRFrVoSg6NPOAvz/25kBjJF+Ho+O0/17RVhALeWamnlHdbrjEFhdEFzZw1N3AG5cUzMvXdG9nxeDfoMjV2tqEfdbDWCV0lu+9/P3hFgj4qQqiqCeXvdrEfwLQpPdG2ZyuoUAAAAASUVORK5CYII=">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
     :root{
       color-scheme:light;
       --bg:#fff6fa;--card:#ffffff;--ink:#2b2352;--muted:#7d77a3;--line:#ece6ff;
-      --p1:#ff6fb1;--p2:#8a6cff;--p3:#19b8e6;--p4:#ffb02e;--ok:#2fd39a;
+      --p1:#ff6fb1;--p2:#8a6cff;--p3:#19b8e6;--p4:#ffb02e;--ok:#2fd39a;--aura:25,184,230;
       --grad:linear-gradient(135deg,#ff7fbf 0%,#8a6cff 100%);
       --shadow:0 18px 40px -14px rgba(138,108,255,.35);
       --display:'Baloo 2','Nunito',system-ui,sans-serif;--font:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -43,6 +59,10 @@
     .platform{display:flex;gap:8px;align-items:center;padding:9px 15px;border-radius:999px;background:#fff;border:2px solid var(--line);font-size:12px;font-weight:800;box-shadow:0 5px 0 var(--line)}
     .dot{height:9px;width:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(47,211,154,.25)}
 
+
+    .brandmark img{image-rendering:pixelated;width:30px;height:30px;display:block;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))}
+    .sword-bob{image-rendering:pixelated;vertical-align:-6px;margin-left:4px;animation:bob 2.2s ease-in-out infinite;filter:drop-shadow(0 4px 0 rgba(43,35,82,.25))}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-8px) rotate(8deg)}}
     /* ---- hero ---- */
     .intro{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:6px 0 18px}
     .eyebrow{margin:0;padding:6px 14px;border-radius:999px;background:rgba(138,108,255,.14);color:#6a4fe0;font-size:12px;font-weight:800;letter-spacing:.06em}
@@ -89,12 +109,12 @@
     .character-name{font-family:var(--display);font-size:18px;font-weight:800;letter-spacing:.14em;color:var(--ink);background:#fff;padding:6px 18px;border-radius:999px;box-shadow:0 5px 0 var(--line)}
     .badge{font-family:var(--display);font-size:12px;font-weight:700;color:#fff;background:var(--p3);border-radius:999px;padding:6px 14px;box-shadow:0 4px 0 #0c8fb3}
     #viewport{flex:1;min-height:560px;position:relative;
-      background:radial-gradient(circle at 50% 58%,#fff 0,#ffeaf5 34%,#ece6ff 62%,#d8efff 100%)}
+      background:radial-gradient(circle at 50% 56%,rgba(var(--aura),.55) 0,rgba(var(--aura),.22) 30%,transparent 62%),radial-gradient(circle at 50% 58%,#fff 0,#f4f0ff 40%,#e6e8ff 70%,#dcefff 100%);transition:background .3s}
     #viewport::before{content:"";position:absolute;left:50%;top:56%;width:min(78%,520px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
-      background:radial-gradient(circle,transparent 58%,rgba(138,108,255,.12) 59% 60%,transparent 61%),radial-gradient(circle,transparent 76%,rgba(255,111,177,.16) 77% 78%,transparent 79%),radial-gradient(circle,rgba(255,255,255,.9) 0,transparent 55%)}
-    #viewport::after{content:"";position:absolute;left:50%;bottom:7%;width:48%;height:7%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(138,108,255,.38),transparent 70%);pointer-events:none}
+      background:radial-gradient(circle,transparent 58%,rgba(var(--aura),.45) 59% 60.5%,transparent 62%),radial-gradient(circle,transparent 76%,rgba(var(--aura),.30) 77% 78%,transparent 79.5%),radial-gradient(circle,rgba(255,255,255,.55) 0,transparent 55%);filter:drop-shadow(0 0 18px rgba(var(--aura),.8))}
+    #viewport::after{content:"";position:absolute;left:50%;bottom:7%;width:48%;height:7%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(var(--aura),.75),transparent 70%);pointer-events:none}
     #viewport canvas{position:relative;z-index:1;width:100%;height:100%;display:block;touch-action:none}
-    .watermark{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);font-family:var(--display);font-weight:800;font-size:clamp(100px,17vw,250px);color:rgba(138,108,255,.09);pointer-events:none;white-space:nowrap}
+    .watermark{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);font-family:var(--display);font-weight:800;font-size:clamp(100px,17vw,250px);color:rgba(var(--aura),.14);pointer-events:none;white-space:nowrap}
     #fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;z-index:1}
     .preview-message{position:absolute;inset:0;z-index:2;display:grid;place-content:center;padding:35px;text-align:center;color:var(--muted);font-size:13px;pointer-events:none}.preview-message.hidden{display:none}
     .stage-footer{position:absolute;z-index:4;right:16px;top:50%;transform:translateY(-50%)}
@@ -103,6 +123,16 @@
     .small-button:hover{transform:translateY(2px);box-shadow:0 2px 0 var(--line)}
     .small-button[aria-pressed="true"]{background:var(--p3);border-color:var(--p3);color:#fff;box-shadow:0 4px 0 #0c8fb3}
 
+
+    .aura-bar{position:absolute;z-index:4;left:16px;bottom:16px;display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border:2px solid var(--line);box-shadow:0 5px 0 var(--line)}
+    .aura-bar>span{font-family:var(--display);font-size:13px;font-weight:700;color:var(--ink);margin-right:2px}
+    .aura-bar button{width:26px;height:26px;border-radius:50%;border:3px solid #fff;background:rgb(var(--c));box-shadow:0 0 0 2px rgba(var(--c),.45),0 0 12px rgba(var(--c),.8);transition:.15s;padding:0}
+    .aura-bar button:hover{transform:scale(1.15)}
+    .aura-bar button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink),0 0 14px rgba(var(--c),.9)}
+    .aura-bar button.off{background:#fff;box-shadow:0 0 0 2px var(--line);position:relative}
+    .aura-bar button.off::after{content:"✕";position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--muted)}
+    @media(max-width:1020px){.aura-bar{left:50%;transform:translateX(-50%);bottom:74px}}
+    @media(max-width:420px){.aura-bar{gap:6px;padding:6px 9px}.aura-bar>span{display:none}}
     /* ---- mix tools ---- */
     .mix-tools button{border:2px solid var(--line);border-radius:20px;background:#fff;padding:14px 16px;font-family:var(--display);font-size:16px;font-weight:700;box-shadow:0 6px 0 var(--line);transition:.15s}
     .mix-tools button:hover{transform:translateY(3px);box-shadow:0 3px 0 var(--line)}
@@ -199,7 +229,7 @@ THE SOFTWARE.
 <body>
   <div class="shell">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="VennLMAO — trang chủ"><span class="brandmark">V</span><span>Venn<b>LMAO</b></span></a>
+      <a class="brand" href="#" aria-label="VennLMAO — trang chủ"><span class="brandmark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEJUlEQVR42u1bS2sTURQ+M02mj2geIwWpFKFFKA0uipHQoqIbN4KICFLsRiiof0BEtyJdiaBS3CgI4hO7UFeiFgutwVREqNQ+IqKWQnGapK80TRkX9Y73DvPOzbySu5m5zE3LeXzn+86ZhAGfrdR4WjzQ32f4fAB8uBq3bTd8loUqX1XvAMbrBgS7OkR8v6v3BOw4e0rar2V+EOenz18hIBLwO+aZ4iaIXF0NAjUH+IUGufZWUQyHpH0i/Yp4XhQWoTCZkfYNHW1bn+NjUBQWve8AMRwiMC83qiRkFTGvZHwNAn50QICPEgygtNaWl7yjA7j2VrGhZae03/N8kHhemMwQKR+MRggnfDnaR0AmP/KRqSoIMPmVGg3WHOClXmDg1nXx2uOH0j4+/IigMDnmG9t2kwXu5Vv4dfepKuY9nwFaur4qICCntpKQrS4HyDMApzxP9gLBrg4R8fTa8hLcD5UIrs+PjmtifvrkBWJ/+XQvXNLBvasyABcpZmZ5NRpUWUe6D3kLAoW5ecDbW73Cx/Exqbvj+Jj0eaT43o29p6sDuPZWUet5cfanKS0RPrif+HtybV8SsrCRzRnGfN4E3i1BQC86vpfCTH7FFU4ol+/LqgF6HZWZhffiAAB8IAhCaUMX8+iKY55GYEwXwejhbmKfBRC1aoIe5n9PzZC6IBqR5ngAAOnEMXIEZrLmUKFBLU+L4RCVSDDFTdUJTiVX2RCgBQ/aTY6nhJATkbc8D5DrgpZzZ6T7pmYeZq7eJM7v/TAkzeQ5Pga59GdSCst4/s+9ZyC8eEON523NgNUFQVks/RtooKuTEafmgHIKn8jVucYJlh2gV/z0HISKHh8IVkzkVKwZwpsPPQfh7+eZ4iY0YhwPAJA63k/sX98YhOTFAcbVGWAk+koZ4BTVVSQDtBxBUzq70gFeMpC6DjCjCwAA5u48AJrzBNfqACO0iM64acZAzQFqsMCNRmfcBCGWRuS1OkLcaDdOl0zjr6czIibjPKQm/sveZJyX7m9/KoFWTVj9liHnCcNjxH7kyRAk9yVsqwuWWAAZjxtuVigpnXciQyxBABmemhCITCiXJp2oDWw5GYCcoeQE3+iAns6IqBR9HPOJ+jyk18OQqM/D6Ncco6UT5Es+YyxMfYfC3LxtOoE1k/JKmMeNp9k621UPWDMpr5TqyPj0etgQtvVo00oRrTgLqFV7PANoFjvECHY4IaCH0WQ8IEUfL3jI6OJsjgHYepc3akHrZ2XvFezOANZo+uNZYDbiZvBup/GEA9QwqZb+WkXPCv/jMwY7BRFrVoSg6NPOAvz/25kBjJF+Ho+O0/17RVhALeWamnlHdbrjEFhdEFzZw1N3AG5cUzMvXdG9nxeDfoMjV2tqEfdbDWCV0lu+9/P3hFgj4qQqiqCeXvdrEfwLQpPdG2ZyuoUAAAAASUVORK5CYII=" alt="" width="30" height="30"></span><span>Venn<b>LMAO</b></span></a>
       <div class="top-right">
         <a class="tt-chip" href="https://www.tiktok.com/@cakconchaba" target="_blank" rel="noopener"><i><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.6 2h-3.3v13.2a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .8.1V9a6.2 6.2 0 1 0 5.4 6.1V8.6a7.4 7.4 0 0 0 4.3 1.4V6.7a4.3 4.3 0 0 1-4.3-4.7z"/></svg></i><span>@cakconchaba</span></a>
         <div class="venn-top-actions"><div class="platform"><span class="dot"></span> <span id="platform-label">Chọn phiên bản</span></div><div class="venn-nav"><button id="venn-menu-toggle" class="venn-menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="venn-menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button><nav id="venn-menu" class="venn-menu" aria-label="Menu chính" hidden><a href="./account.html">⚙️ Chế độ chạy</a><a href="./earn.html">📘 Hướng dẫn xuất</a><a href="https://discord.gg/Y6FJQarSUu" target="_blank" rel="noopener">💬 Báo lỗi / Support</a></nav></div></div>
@@ -208,7 +238,7 @@ THE SOFTWARE.
 
     <div class="intro" id="wardrobe-intro">
       <p class="eyebrow">✨ Studio mod skin Free Fire</p>
-      <h1>Phòng thay đồ <em>Alok</em></h1>
+      <h1>Phòng thay đồ <em>Alok</em> <img class="sword-bob" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEJUlEQVR42u1bS2sTURQ+M02mj2geIwWpFKFFKA0uipHQoqIbN4KICFLsRiiof0BEtyJdiaBS3CgI4hO7UFeiFgutwVREqNQ+IqKWQnGapK80TRkX9Y73DvPOzbySu5m5zE3LeXzn+86ZhAGfrdR4WjzQ32f4fAB8uBq3bTd8loUqX1XvAMbrBgS7OkR8v6v3BOw4e0rar2V+EOenz18hIBLwO+aZ4iaIXF0NAjUH+IUGufZWUQyHpH0i/Yp4XhQWoTCZkfYNHW1bn+NjUBQWve8AMRwiMC83qiRkFTGvZHwNAn50QICPEgygtNaWl7yjA7j2VrGhZae03/N8kHhemMwQKR+MRggnfDnaR0AmP/KRqSoIMPmVGg3WHOClXmDg1nXx2uOH0j4+/IigMDnmG9t2kwXu5Vv4dfepKuY9nwFaur4qICCntpKQrS4HyDMApzxP9gLBrg4R8fTa8hLcD5UIrs+PjmtifvrkBWJ/+XQvXNLBvasyABcpZmZ5NRpUWUe6D3kLAoW5ecDbW73Cx/Exqbvj+Jj0eaT43o29p6sDuPZWUet5cfanKS0RPrif+HtybV8SsrCRzRnGfN4E3i1BQC86vpfCTH7FFU4ol+/LqgF6HZWZhffiAAB8IAhCaUMX8+iKY55GYEwXwejhbmKfBRC1aoIe5n9PzZC6IBqR5ngAAOnEMXIEZrLmUKFBLU+L4RCVSDDFTdUJTiVX2RCgBQ/aTY6nhJATkbc8D5DrgpZzZ6T7pmYeZq7eJM7v/TAkzeQ5Pga59GdSCst4/s+9ZyC8eEON523NgNUFQVks/RtooKuTEafmgHIKn8jVucYJlh2gV/z0HISKHh8IVkzkVKwZwpsPPQfh7+eZ4iY0YhwPAJA63k/sX98YhOTFAcbVGWAk+koZ4BTVVSQDtBxBUzq70gFeMpC6DjCjCwAA5u48AJrzBNfqACO0iM64acZAzQFqsMCNRmfcBCGWRuS1OkLcaDdOl0zjr6czIibjPKQm/sveZJyX7m9/KoFWTVj9liHnCcNjxH7kyRAk9yVsqwuWWAAZjxtuVigpnXciQyxBABmemhCITCiXJp2oDWw5GYCcoeQE3+iAns6IqBR9HPOJ+jyk18OQqM/D6Ncco6UT5Es+YyxMfYfC3LxtOoE1k/JKmMeNp9k621UPWDMpr5TqyPj0etgQtvVo00oRrTgLqFV7PANoFjvECHY4IaCH0WQ8IEUfL3jI6OJsjgHYepc3akHrZ2XvFezOANZo+uNZYDbiZvBup/GEA9QwqZb+WkXPCv/jMwY7BRFrVoSg6NPOAvz/25kBjJF+Ho+O0/17RVhALeWamnlHdbrjEFhdEFzZw1N3AG5cUzMvXdG9nxeDfoMjV2tqEfdbDWCV0lu+9/P3hFgj4qQqiqCeXvdrEfwLQpPdG2ZyuoUAAAAASUVORK5CYII=" alt="" width="46" height="46"></h1>
       <p class="sub">Chạm vào từng ô để chọn đồ, xoay nhân vật rồi xuất file mod trong một nốt nhạc.</p>
       <div class="status-line"><p id="venn-mod-turns" aria-live="polite">Đang khởi động…</p><span class="count">Android · Free Fire thường</span></div>
     </div>
@@ -228,6 +258,7 @@ THE SOFTWARE.
             <button class="small-button" id="front" type="button" title="Trở về góc nhìn phía trước">◎ Chính diện</button>
           </div>
         </div>
+        <div class="aura-bar" id="aura-bar" role="group" aria-label="Màu hào quang"><span>✨ Hào quang</span><button type="button" data-aura="25,184,230" style="--c:25,184,230" aria-label="Xanh neon" title="Xanh neon" aria-pressed="true"></button><button type="button" data-aura="47,211,154" style="--c:47,211,154" aria-label="Xanh lá" title="Xanh lá"></button><button type="button" data-aura="138,108,255" style="--c:138,108,255" aria-label="Tím" title="Tím"></button><button type="button" data-aura="255,111,177" style="--c:255,111,177" aria-label="Hồng" title="Hồng"></button><button type="button" data-aura="255,176,46" style="--c:255,176,46" aria-label="Vàng" title="Vàng"></button><button type="button" data-aura="255,90,70" style="--c:255,90,70" aria-label="Đỏ" title="Đỏ"></button><button type="button" class="off" data-aura="0,0,0" aria-label="Tắt hào quang" title="Tắt"></button></div>
       </section>
 
       <section class="panel" aria-label="Chọn trang phục">
@@ -280,6 +311,12 @@ THE SOFTWARE.
  seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(sync,0);});
  sel.addEventListener('change',()=>setTimeout(sync,0));window.addEventListener('alok-version-change',sync);window.addEventListener('wardrobe-change',sync);
  setTimeout(sync,0);
+
+ const aura=document.getElementById('aura-bar');
+ const setAura=v=>{document.documentElement.style.setProperty('--aura',v);aura.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.aura===v)));};
+ let savedAura=null;try{savedAura=localStorage.getItem('venn-aura');}catch{}
+ if(savedAura&&aura.querySelector('[data-aura="'+savedAura+'"]'))setAura(savedAura);
+ aura.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setAura(b.dataset.aura);try{localStorage.setItem('venn-aura',b.dataset.aura);}catch{}});
  const pop=document.getElementById('tt-pop');
  const close=()=>{pop.hidden=true;};
  document.getElementById('tt-close').addEventListener('click',close);
