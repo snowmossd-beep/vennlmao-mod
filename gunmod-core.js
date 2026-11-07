@@ -195,12 +195,12 @@ function applyPatch(info,patch,label,notes){
     if(t.h in typeIdx)return;
     typeIdx[t.h]=meta.types.length+newTypes.length;newTypes.push(t);
   });
-  var extIdx={},newExts=[],nulled=0;
+  var extIdx={},newExts=[],nulled=0,missing=[];
   patch.exts.forEach(function(e){
     var found=-1;meta.exts.forEach(function(x,i){if(x.path===e.path)found=i+1});
     if(found>0){extIdx[e.f]=found;return}
     if(/^(library|resources)\//.test(e.path)){extIdx[e.f]=meta.exts.length+newExts.length+1;newExts.push(e)}
-    else{extIdx[e.f]=0;nulled++}
+    else{extIdx[e.f]=0;nulled++;missing.push(e.path)}
   });
   var resBase=resNode?align(resNode.data.length,16):0;
   var resPath=resNode?('archive:/'+resNode.name.replace(/\.resS$/,'')+'/'+resNode.name):'';
@@ -272,7 +272,7 @@ function applyPatch(info,patch,label,notes){
   out.set(abNew,dataOff+abAt);
   var res2=null;
   if(resNode){res2=new Uint8Array(resBase+patch.resLen);res2.set(resNode.data,0);res2.set(patch.resBlob,resBase)}
-  if(notes){notes.nulled=nulled;notes.replaced=replaced;notes.objects=patch.objects.length}
+  if(notes){notes.missing=missing;notes.nulled=nulled;notes.newIds=patch.objects.map(function(o){return String(o.id)});notes.replaced=replaced;notes.objects=patch.objects.length}
   return {ser:out,res:res2,resName:resNode?resNode.name:null};
 }
 function be64(dv,o,v){dv.setBigInt64(o,BigInt(v))}
@@ -311,6 +311,23 @@ async function packBundle(info,newSer,newRes,resName,mode,onprog){
   out.set(hdr,0);out.set(biComp,h.hdrEnd);out.set(comp,h.hdrEnd+biComp.length);
   return {out:out,size:tot,origSize:info.dec.fileLen};
 }
+async function verifyOutput(outBuf,label,notes,onprog){
+  var r={ok:true,problems:[]};
+  try{
+    var inf=await inspectCarrier(outBuf,function(){});
+    var ser=inf.serNode.data,meta=inf.meta,dataLen=ser.length-meta.dataOff;
+    meta.objs.forEach(function(o){if(o.start+o.size>dataLen){r.ok=false;r.problems.push('Object '+o.pid+' vượt quá dữ liệu')}});
+    var ids={};meta.objs.forEach(function(o){ids[String(o.pid)]=1});
+    var hit=0,bad=0;
+    inf.ab.cont.forEach(function(c){var k=classify(c.key);if(!k||k.label!==label)return;if(notes.newIds.indexOf(String(c.id))>=0){hit++;if(!ids[String(c.id)]){bad++}}});
+    r.replaced=hit;
+    if(!hit){r.ok=false;r.problems.push('Không có prefab nào trỏ tới skin mod')}
+    if(bad){r.ok=false;r.problems.push(bad+' prefab trỏ tới object không tồn tại')}
+    var resNode=inf.dec.nodes.filter(function(n){return /\.resS$/.test(n.name)})[0];
+    r.hasRes=!!resNode;
+  }catch(e){r.ok=false;r.problems.push('Không đọc lại được file vừa tạo: '+(e&&e.message?e.message:e))}
+  return r;
+}
 async function buildMod(carrierBuf,patchBuf,label,mode,onprog,pre){
   var info=pre||await inspectCarrier(carrierBuf,function(p){onprog&&onprog('Giải nén file gốc',p*0.25)});
   info.origBuf=carrierBuf;
@@ -320,9 +337,11 @@ async function buildMod(carrierBuf,patchBuf,label,mode,onprog,pre){
   var r=applyPatch(info,patch,label,notes);
   onprog&&onprog('Ghép skin',0.3);
   var packed=await packBundle(info,r.ser,r.res,r.resName,mode,function(p){onprog&&onprog('Nén file',0.3+p*0.7)});
+  onprog&&onprog('Kiểm tra file',0.98);
+  notes.verify=await verifyOutput(packed.out,label,notes);
   onprog&&onprog('Xong',1);
   return {file:packed.out,notes:notes,size:packed.size,origSize:packed.origSize};
 }
-root.GunMod={inspectCarrier:inspectCarrier,loadPatch:loadPatch,buildMod:buildMod,classify:classify,parseMeta:parseMeta,decodeBundle:decodeBundle};
+root.GunMod={verifyOutput:verifyOutput,inspectCarrier:inspectCarrier,loadPatch:loadPatch,buildMod:buildMod,classify:classify,parseMeta:parseMeta,decodeBundle:decodeBundle};
 if(typeof module!=='undefined')module.exports=root.GunMod;
 })(typeof window!=='undefined'?window:globalThis);

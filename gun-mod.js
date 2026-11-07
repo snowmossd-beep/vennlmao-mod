@@ -224,10 +224,16 @@ async function run(){
     var name=carrierFile.name;
     var res_=$('#gm-res');res_.className='gm-result';
     var sizeTxt=(res.file.length/1048576).toFixed(2)+' MB (gốc '+(res.origSize/1048576).toFixed(2)+' MB)';
-    var warn=res.notes&&res.notes.nulled?'<br>Lưu ý: '+res.notes.nulled+' tham chiếu hiệu ứng ngoài bundle bị bỏ vì file gốc không có.':'';
+    var warn='',N=res.notes||{},V=N.verify||{ok:true,problems:[]};
+    if(!V.ok)warn+='<br>✖ Kiểm tra file thất bại: '+esc(V.problems.join('; '))+'. Đừng thay file này vào game.';
+    else warn+='<br>✔ Đã tự kiểm tra: '+V.replaced+' prefab đã trỏ sang skin mod.';
+    if(N.missing&&N.missing.length)warn+='<br>⚠ File gốc không tham chiếu '+N.missing.length+' bundle phụ mà skin này cần (shader/hiệu ứng). Skin có thể vô hình hoặc lỗi màu. Thử chọn file bundle khác cùng loại, hoặc dùng đúng file <code>'+esc(sel.s.src)+'</code>.';
+    if(res.file.length>res.origSize)warn+='<br>⚠ File mod lớn hơn file gốc ('+(res.file.length/1048576).toFixed(2)+' MB so với '+(res.origSize/1048576).toFixed(2)+' MB). Nếu game không nhận hoặc tự tải lại file gốc thì đây có thể là nguyên nhân.';
+    var bad=!V.ok;
     res_.innerHTML='✔ Đã tạo xong · '+esc(sizeTxt)+warn+'<br>Thay file này vào đúng vị trí file gốc (giữ nguyên tên) rồi mở lại game.<br><a id="gm-dl" href="'+url+'" download="'+esc(name)+'">⬇ Tải file '+esc(name.length>46?name.slice(0,22)+'…'+name.slice(-18):name)+'</a>';
+    if(bad)res_.className='gm-result gm-bad';
     res_.hidden=false;setProg('Xong',1);
-    var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+    if(!bad){var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}
   }catch(err){
     var rr=$('#gm-res');rr.className='gm-result gm-bad';rr.textContent='✖ '+(err&&err.message?err.message:err);rr.hidden=false;
   }finally{busy=false;updateGo()}
