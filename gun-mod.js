@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 var CFG={catalog:'guns/catalog.json',patchBase:'guns/patch/',ver:'1'};
-var cat=null,curGun=null,query='',busy=false,coreP=null,sel=null,info=null,carrierFile=null,carrierBuf=null;
+var cat=null,curGun=null,query='',busy=false,coreP=null,sel=null,info=null,carrierFile=null,carrierBuf=null,base=null,pg=null,pq='';
 function $(s,r){return (r||document).querySelector(s)}
 function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -20,11 +20,18 @@ function init(){
   nav.innerHTML='<button class="gm-tab" role="tab" id="gm-tab-wardrobe" aria-selected="true" type="button"><span class="gm-ico">👗</span>Mod đồ</button><button class="gm-tab" role="tab" id="gm-tab-gun" aria-selected="false" type="button"><span class="gm-ico">🔫</span>Mod skin súng</button>';
   header.parentNode.insertBefore(nav,header.nextSibling);
   var sec=el('section');sec.id='gun-mod';sec.hidden=true;
-  sec.innerHTML='<div class="gm-note"><span>📱</span><span>Mod skin súng hiện chỉ dành cho <b>iOS · Free Fire MAX</b>. Web tự tạo file ngay trên trình duyệt từ file bundle gốc trên máy bạn (không gửi file đi đâu).</span></div><div class="gm-bar"><button class="gm-back" id="gm-back" type="button" hidden>← Tất cả súng</button><label class="gm-search"><span>🔎</span><input id="gm-q" type="search" placeholder="Tìm súng hoặc skin súng (vd: AK47, Mambas, Vũ trụ...)" autocomplete="off"></label></div><div id="gm-body"></div>';
+  sec.innerHTML='<div class="gm-note"><span>📱</span><span>Mod skin súng hiện chỉ dành cho <b>iOS · Free Fire MAX</b>. Web tự tạo file ngay trên trình duyệt từ file bundle gốc trên máy bạn (không gửi file đi đâu).</span></div><div class="gm-base" id="gm-base"></div><div class="gm-steph"><b>Bước 2</b> · Chọn skin súng muốn mod (hiện ở bên dưới)</div><div class="gm-bar"><button class="gm-back" id="gm-back" type="button" hidden>← Tất cả súng</button><label class="gm-search"><span>🔎</span><input id="gm-q" type="search" placeholder="Tìm súng hoặc skin súng (vd: AK47, Mambas, Vũ trụ...)" autocomplete="off"></label></div><div id="gm-body"></div>';
   work.parentNode.insertBefore(sec,work.nextSibling);
   var modal=el('div','gm-modal');modal.id='gm-modal';modal.hidden=true;
-  modal.innerHTML='<div class="gm-dialog" role="dialog" aria-modal="true" aria-labelledby="gm-mt"><button class="gm-x" id="gm-x" type="button" aria-label="Đóng">×</button><div class="gm-head"><img id="gm-mi" alt=""><div><h3 id="gm-mt"></h3><p id="gm-ms"></p></div></div><div class="gm-step"><h4>Bước 1 · Chọn file bundle gốc</h4><p>Chọn đúng file <code>optionalab_weapon_…</code> của một skin súng bạn đang có, trong thư mục <code>gameassetbundles</code> của Free Fire MAX.</p><input id="gm-file" type="file"><div class="gm-info" id="gm-fi"></div></div><div class="gm-step"><h4>Bước 2 · Skin gốc sẽ bị thay</h4><p>Chọn skin trong file đó mà bạn đang trang bị. Skin này sẽ hiển thị như skin bạn chọn.</p><select id="gm-carrier" disabled><option>— chọn file trước —</option></select></div><div class="gm-step"><h4>Bước 3 · Cách tạo file</h4><label class="gm-radio"><input type="radio" name="gm-mode" value="normal" checked><span>Nén (khuyên dùng)<small>Giữ dung lượng gần bằng file gốc. Có thể mất 1–3 phút trên điện thoại.</small></span></label><label class="gm-radio"><input type="radio" name="gm-mode" value="fast"><span>Nhanh<small>Không nén, tạo trong vài giây nhưng file lớn hơn file gốc.</small></span></label></div><button class="gm-go" id="gm-go" type="button" disabled>Tạo file mod</button><div class="gm-prog" id="gm-prog" hidden><div class="gm-track"><div class="gm-fill" id="gm-fill"></div></div><div class="gm-pstep"><span id="gm-pst">Đang xử lý…</span><span id="gm-ppc">0%</span></div></div><div class="gm-result" id="gm-res" hidden></div><div class="gm-warn">Sửa file game vi phạm điều khoản của Garena và có thể bị khóa tài khoản. Chỉ dùng cho mục đích hiển thị cá nhân, sao lưu file gốc trước khi thay.</div></div>';
+  modal.innerHTML='<div class="gm-dialog" role="dialog" aria-modal="true" aria-labelledby="gm-mt"><button class="gm-x" id="gm-x" type="button" aria-label="Đóng">×</button><div class="gm-head"><img id="gm-mi" alt=""><div><h3 id="gm-mt"></h3><p id="gm-ms"></p></div></div><div class="gm-step"><h4>Bước 1 · Chọn file bundle gốc</h4><p>Chọn file bundle chứa skin gốc (tên bắt đầu bằng <code id="gm-srchint">optionalab_…</code>), trong thư mục <code>gameassetbundles</code> của Free Fire MAX.</p><input id="gm-file" type="file"><div class="gm-info" id="gm-fi"></div></div><div class="gm-step"><h4>Bước 2 · Skin gốc sẽ bị thay</h4><p id="gm-baseinfo"></p><select id="gm-carrier" disabled><option>— chọn file trước —</option></select></div><div class="gm-step"><h4>Bước 3 · Cách tạo file</h4><label class="gm-radio"><input type="radio" name="gm-mode" value="normal" checked><span>Nén (khuyên dùng)<small>Giữ dung lượng gần bằng file gốc. Có thể mất 1–3 phút trên điện thoại.</small></span></label><label class="gm-radio"><input type="radio" name="gm-mode" value="fast"><span>Nhanh<small>Không nén, tạo trong vài giây nhưng file lớn hơn file gốc.</small></span></label></div><button class="gm-go" id="gm-go" type="button" disabled>Tạo file mod</button><div class="gm-prog" id="gm-prog" hidden><div class="gm-track"><div class="gm-fill" id="gm-fill"></div></div><div class="gm-pstep"><span id="gm-pst">Đang xử lý…</span><span id="gm-ppc">0%</span></div></div><div class="gm-result" id="gm-res" hidden></div><div class="gm-warn">Sửa file game vi phạm điều khoản của Garena và có thể bị khóa tài khoản. Chỉ dùng cho mục đích hiển thị cá nhân, sao lưu file gốc trước khi thay.</div></div>';
   document.body.appendChild(modal);
+  var pm=el('div','gm-modal');pm.id='gm-bm';pm.hidden=true;
+  pm.innerHTML='<div class="gm-dialog gm-wide" role="dialog" aria-modal="true"><button class="gm-x" id="gm-bx" type="button" aria-label="Đóng">×</button><h3 class="gm-ptitle">Chọn skin gốc</h3><p class="gm-psub">Chọn đúng skin súng bạn <b>đang sở hữu và trang bị</b> trong game. Skin mod sẽ hiển thị thay cho skin này.</p><div class="gm-bar"><button class="gm-back" id="gm-bback" type="button" hidden>← Tất cả súng</button><label class="gm-search"><span>🔎</span><input id="gm-bq" type="search" placeholder="Tìm súng hoặc skin gốc..." autocomplete="off"></label></div><div id="gm-bbody"></div></div>';
+  document.body.appendChild(pm);
+  $('#gm-bx').onclick=closePicker;
+  pm.addEventListener('click',function(e){if(e.target===pm)closePicker()});
+  $('#gm-bq').addEventListener('input',function(e){pq=e.target.value;renderPicker()});
+  $('#gm-bback').onclick=function(){pg=null;pq='';$('#gm-bq').value='';renderPicker()};
   var tabW=$('#gm-tab-wardrobe'),tabG=$('#gm-tab-gun');
   function show(which){
     var g=which==='gun';
@@ -37,7 +44,7 @@ function init(){
   $('#gm-back').onclick=function(){curGun=null;render();window.scrollTo({top:sec.offsetTop-10,behavior:'smooth'})};
   $('#gm-x').onclick=closeModal;
   modal.addEventListener('click',function(e){if(e.target===modal)closeModal()});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden)closeModal()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!pm.hidden)closePicker();else if(!modal.hidden)closeModal()}});
   $('#gm-file').addEventListener('change',onFile);
   $('#gm-carrier').addEventListener('change',updateGo);
   $('#gm-go').onclick=run;
@@ -45,9 +52,9 @@ function init(){
   if(location.hash==='#mod-sung')show('gun');
 }
 function ensureCatalog(){
-  if(cat){render();return}
+  if(cat){renderBase();render();return}
   var b=$('#gm-body');b.innerHTML='<div class="gm-empty">Đang tải danh sách skin súng…</div>';
-  fetch(CFG.catalog+'?v='+CFG.ver).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(j){cat=j;index();render()}).catch(function(){b.innerHTML='<div class="gm-empty">Không tải được danh sách skin. Kiểm tra file guns/catalog.json.</div>'});
+  fetch(CFG.catalog+'?v='+CFG.ver).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(j){cat=j;index();restoreBase();renderBase();render()}).catch(function(){b.innerHTML='<div class="gm-empty">Không tải được danh sách skin. Kiểm tra file guns/catalog.json.</div>'});
 }
 var ALIAS=[['digitaluniverse','vu tru so vu tru'],['mambas','phong xa'],['dinosaur','khung long'],['dragon','rong'],['wolf','soi'],['cat','meo'],['fox','cao'],['tiger','ho'],['jaguar','bao bao den'],['skeleton','xuong'],['skull','so lo'],['ghost','ma'],['fire','lua'],['flame','lua'],['ice','bang'],['gold','vang'],['demon','quy'],['angel','thien than'],['snake','ran'],['halloween','halloween le hoi'],['cyber','cyber robot'],['lava','dung nham'],['ninja','nin ja'],['samurai','kiem si'],['storm','bao'],['lightning','set']];
 var flat=[];
@@ -66,8 +73,72 @@ function gunCard(g){
 function skinCard(g,s,showGun){
   var b=el('button','gm-item'+(s.p?'':' gm-disabled'));b.type='button';
   b.innerHTML=(s.img?'<img class="gm-img" loading="lazy" alt="" src="guns/'+esc(s.img)+'">':'<div class="gm-noimg">Chưa có ảnh</div>')+'<span class="gm-badge'+(s.p?'':' gm-off')+'">'+(s.p?'Sẵn sàng':(s.w==='v22'?'Chưa hỗ trợ':'Chưa có'))+'</span><div class="gm-meta"><span class="gm-name">'+esc(s.n)+'</span><span class="gm-sub">'+(showGun?esc(g.name):esc(g.name)+' · '+(g.kind==='SW'?'súng phụ':'súng chính'))+'</span></div>';
-  b.onclick=function(){openModal(g,s)};
+  b.onclick=function(){
+    if(!s.p){openModal(g,s);return}
+    if(!base){toast('Hãy chọn skin gốc ở Bước 1 trước.');var bp=$('#gm-base');if(bp){bp.scrollIntoView({behavior:'smooth',block:'center'});bp.classList.remove('gm-flash');void bp.offsetWidth;bp.classList.add('gm-flash')}return}
+    openModal(g,s)};
   return b;
+}
+function saveBase(){try{if(base)localStorage.setItem('gm-base',base.g.id+'|'+base.s.k);else localStorage.removeItem('gm-base')}catch(e){}}
+function restoreBase(){
+  try{var v=localStorage.getItem('gm-base');if(!v||!cat)return;var a=v.split('|');
+    cat.guns.forEach(function(g){if(g.id===a[0])g.skins.forEach(function(s){if(s.k===a[1]&&s.w!=='v22')base={g:g,s:s}})})}catch(e){}
+}
+function renderBase(){
+  var box=$('#gm-base');if(!box)return;box.innerHTML='';
+  box.appendChild(el('div','gm-bhead','<b>Bước 1</b> · Chọn skin gốc <small>(skin súng bạn đang có và trang bị trong game)</small>'));
+  var row=el('div','gm-brow');
+  if(base){
+    row.innerHTML=(base.s.img?'<img class="gm-bimg" alt="" src="guns/'+esc(base.s.img)+'">':'<div class="gm-noimg gm-bimg">'+esc(base.g.name)+'</div>')+'<div class="gm-bmeta"><span class="gm-name">'+esc(base.g.name)+' · '+esc(base.s.n)+'</span><span class="gm-sub">File bundle cần chọn: <code>'+esc(base.s.src)+'</code></span></div>';
+    var chg=el('button','gm-btn','Đổi skin gốc');chg.type='button';chg.onclick=openPicker;
+    var clr=el('button','gm-btn gm-btn2','Bỏ chọn');clr.type='button';clr.onclick=function(){base=null;saveBase();renderBase()};
+    row.appendChild(chg);row.appendChild(clr);
+  }else{
+    row.innerHTML='<div class="gm-bmeta"><span class="gm-sub">Chưa chọn skin gốc. Chọn trước để web biết thay vào file nào.</span></div>';
+    var pick=el('button','gm-btn','Chọn skin gốc');pick.type='button';pick.onclick=openPicker;row.appendChild(pick);
+  }
+  box.appendChild(row);
+}
+function openPicker(){pg=null;pq='';$('#gm-bq').value='';renderPicker();$('#gm-bm').hidden=false;document.body.style.overflow='hidden'}
+function closePicker(){$('#gm-bm').hidden=true;document.body.style.overflow=($('#gm-modal').hidden?'':'hidden')}
+function pickCard(g,s){
+  var b=el('button','gm-item');b.type='button';
+  b.innerHTML=(s.img?'<img class="gm-img" loading="lazy" alt="" src="guns/'+esc(s.img)+'">':'<div class="gm-noimg">Chưa có ảnh</div>')+'<div class="gm-meta"><span class="gm-name">'+esc(s.n)+'</span><span class="gm-sub">'+esc(g.name)+'</span></div>';
+  b.onclick=function(){base={g:g,s:s};saveBase();closePicker();renderBase()};
+  return b;
+}
+function renderPicker(){
+  var body=$('#gm-bbody'),bk=$('#gm-bback');body.innerHTML='';if(!cat)return;
+  var q=norm(pq);bk.hidden=!pg&&!q;
+  if(q){
+    var skins=flat.filter(function(x){return x.s.w!=='v22'&&x.key.indexOf(q)>=0}).slice(0,150);
+    if(!skins.length){body.appendChild(el('div','gm-empty','Không tìm thấy kết quả'));return}
+    var sg=el('div','gm-grid');skins.forEach(function(x){sg.appendChild(pickCard(x.g,x.s))});body.appendChild(sg);return;
+  }
+  if(pg){
+    body.appendChild(el('div','gm-title',esc(pg.name)));
+    var gr=el('div','gm-grid');pg.skins.forEach(function(s){if(s.w!=='v22')gr.appendChild(pickCard(pg,s))});body.appendChild(gr);
+  }else{
+    body.appendChild(el('div','gm-title','Chọn súng'));
+    var gg=el('div','gm-grid gm-gunsgrid');
+    cat.guns.forEach(function(g){var b=el('button','gm-item');b.type='button';
+      b.innerHTML=(g.thumb?'<img class="gm-img" loading="lazy" alt="" src="guns/'+esc(g.thumb)+'">':'<div class="gm-noimg">'+esc(g.name)+'</div>')+'<div class="gm-meta"><span class="gm-name">'+esc(g.name)+'</span><span class="gm-sub">'+g.count+' skin</span></div>';
+      b.onclick=function(){pg=g;renderPicker()};gg.appendChild(b)});
+    body.appendChild(gg);
+  }
+}
+function findBaseLabel(labels){
+  if(!base)return null;
+  var k=norm(base.s.k).replace(/ /g,''),gk=norm(base.g.name).replace(/ /g,'');
+  var best=null;
+  labels.forEach(function(l){
+    var n=norm(l).replace(/ /g,''),r=-1;
+    if(n===gk+k||n===k)r=0;
+    else if(n.indexOf(gk)>=0&&n.slice(-k.length)===k)r=1;
+    else if(n.slice(-k.length)===k)r=2;
+    if(r>=0&&(!best||r<best.r))best={l:l,r:r};
+  });
+  return best?best.l:null;
 }
 function render(){
   var body=$('#gm-body'),back=$('#gm-back');body.innerHTML='';
@@ -96,7 +167,9 @@ function render(){
 function openModal(g,s){
   if(!s.p){toast(s.w==='v22'?'Skin này nằm trong bundle phiên bản mới, tạm thời chưa hỗ trợ.':'Skin này chưa có dữ liệu mod.');return}
   sel={g:g,s:s};info=null;carrierFile=null;carrierBuf=null;
-  $('#gm-mt').textContent=g.name+' · '+s.n;$('#gm-ms').textContent=(g.kind==='SW'?'Súng phụ':'Súng chính')+' · bản iOS MAX';
+  $('#gm-mt').textContent=g.name+' · '+s.n;$('#gm-ms').textContent=(g.kind==='SW'?'Súng phụ':'Súng chính')+' · sẽ thay cho skin gốc: '+(base?base.g.name+' '+base.s.n:'?');
+  var sh=$('#gm-srchint');if(sh)sh.textContent=base?base.s.src:'optionalab_…';
+  var bi0=$('#gm-baseinfo');if(bi0){bi0.className='';bi0.textContent='Web tự chọn skin gốc bạn đã chọn ở ngoài. Nếu cần có thể đổi lại ở đây.'}
   var im=$('#gm-mi');if(s.img){im.src='guns/'+s.img;im.hidden=false}else im.hidden=true;
   $('#gm-file').value='';$('#gm-fi').textContent='';$('#gm-fi').className='gm-info';
   var c=$('#gm-carrier');c.innerHTML='<option>— chọn file trước —</option>';c.disabled=true;
@@ -128,6 +201,9 @@ async function onFile(e){
     c.innerHTML='';
     labels.forEach(function(l){var o=document.createElement('option');o.value=l;o.textContent=l.replace(/_/g,' ')+'  ('+info.labels[l].join(', ')+')';c.appendChild(o)});
     c.disabled=false;
+    var bl=findBaseLabel(labels),bi=$('#gm-baseinfo');
+    if(bl){c.value=bl;if(bi){bi.className='gm-ok';bi.textContent='✔ Đã tìm thấy skin gốc "'+base.s.n+'" trong file này.'}}
+    else if(bi){bi.className='gm-err';bi.textContent='⚠ Không thấy skin gốc "'+(base?base.s.n:'')+'" trong file này. Kiểm tra lại file có tên bắt đầu bằng '+(base?base.s.src:'')+', hoặc tự chọn skin trong danh sách.'}
     fi.textContent='✔ '+f.name+' · '+(f.size/1048576).toFixed(1)+' MB · '+labels.length+' skin ('+info.meta.unity+')';
     updateGo();
   }catch(err){info=null;fi.className='gm-info gm-err';fi.textContent='✖ '+(err&&err.message?err.message:err);c.disabled=true;$('#gm-go').disabled=true}
