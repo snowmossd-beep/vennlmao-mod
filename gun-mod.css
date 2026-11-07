@@ -1,0 +1,58 @@
+.gm-tabs{display:flex;justify-content:center;gap:10px;margin:2px 0 18px;flex-wrap:wrap}
+.gm-tab{appearance:none;border:2px solid var(--line);background:var(--card);color:var(--ink);font:800 15px/1 var(--font);padding:12px 20px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 0 rgba(138,108,255,.12);transition:transform .15s,box-shadow .15s}
+.gm-tab:hover{transform:translateY(-2px)}
+.gm-tab[aria-selected=true]{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 0 #5a3fd0,0 14px 24px -10px rgba(138,108,255,.6)}
+.gm-tab .gm-ico{font-size:18px}
+#gun-mod{display:block;padding-bottom:40px}
+#gun-mod[hidden]{display:none}
+.gm-note{display:flex;gap:10px;align-items:flex-start;background:rgba(138,108,255,.1);border:1px solid rgba(138,108,255,.25);color:#4b3aa8;border-radius:16px;padding:12px 16px;font-size:14px;margin:0 0 14px}
+.gm-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
+.gm-search{flex:1 1 260px;display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:0 16px;box-shadow:var(--shadow)}
+.gm-search input{flex:1;border:0;outline:0;background:transparent;font:700 16px/1 var(--font);color:var(--ink);padding:14px 0;min-width:0}
+.gm-search input::placeholder{color:var(--muted);font-weight:600}
+.gm-back{appearance:none;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:11px 16px;font:800 14px/1 var(--font);cursor:pointer}
+.gm-title{font-family:var(--display);font-weight:800;font-size:26px;margin:2px 0 12px;letter-spacing:-.01em}
+.gm-title small{font-family:var(--font);font-weight:700;font-size:14px;color:var(--muted);margin-left:8px}
+.gm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+.gm-grid.gm-gunsgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.gm-item{position:relative;appearance:none;text-align:left;border:2px solid var(--line);background:var(--card);border-radius:20px;overflow:hidden;cursor:pointer;padding:0;color:var(--ink);font-family:var(--font);box-shadow:0 10px 24px -16px rgba(138,108,255,.5);transition:transform .15s,border-color .15s}
+.gm-item:hover{transform:translateY(-3px);border-color:rgba(138,108,255,.55)}
+.gm-item:focus-visible{outline:3px solid var(--p2);outline-offset:2px}
+.gm-item .gm-img{display:block;width:100%;aspect-ratio:2/1;object-fit:contain;background:#26232f}
+.gm-item .gm-noimg{display:grid;place-items:center;width:100%;aspect-ratio:2/1;background:#26232f;color:#9d98c2;font-size:13px}
+.gm-item .gm-meta{padding:9px 12px 11px;display:flex;flex-direction:column;gap:2px}
+.gm-item .gm-name{font-weight:800;font-size:14.5px;line-height:1.25;word-break:break-word}
+.gm-item .gm-sub{font-size:12.5px;color:var(--muted);font-weight:700}
+.gm-badge{position:absolute;top:8px;right:8px;font:800 11px/1 var(--font);padding:5px 9px;border-radius:999px;background:var(--ok);color:#073b2a}
+.gm-badge.gm-off{background:#e7e3f7;color:#6c66a0}
+.gm-item.gm-disabled{opacity:.62}
+.gm-empty{padding:28px;text-align:center;color:var(--muted);font-weight:700}
+.gm-sec{font-family:var(--display);font-weight:800;font-size:19px;margin:18px 0 10px}
+.gm-modal{position:fixed;inset:0;z-index:300;background:rgba(43,35,82,.55);backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px}
+.gm-modal[hidden]{display:none}
+.gm-dialog{position:relative;width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--card);border-radius:26px;padding:22px 22px 24px;box-shadow:0 30px 80px -20px rgba(43,35,82,.6)}
+.gm-x{position:absolute;top:12px;right:14px;appearance:none;border:0;background:var(--line);color:var(--ink);width:34px;height:34px;border-radius:50%;font:800 18px/1 var(--font);cursor:pointer}
+.gm-head{display:flex;gap:12px;align-items:center;margin:0 36px 14px 0}
+.gm-head img{width:112px;aspect-ratio:2/1;object-fit:contain;background:#26232f;border-radius:14px}
+.gm-head h3{margin:0;font:800 20px/1.2 var(--display)}
+.gm-head p{margin:2px 0 0;color:var(--muted);font-size:13px;font-weight:700}
+.gm-step{border:2px solid var(--line);border-radius:18px;padding:12px 14px;margin:0 0 10px}
+.gm-step h4{margin:0 0 6px;font:800 14.5px/1.3 var(--font)}
+.gm-step p{margin:0 0 8px;color:var(--muted);font-size:13px}
+.gm-step input[type=file],.gm-step select{width:100%;font:700 14px/1.3 var(--font);color:var(--ink);background:#faf8ff;border:2px solid var(--line);border-radius:12px;padding:10px}
+.gm-info{margin-top:8px;font-size:13px;font-weight:700;color:#4b3aa8;word-break:break-all}
+.gm-info.gm-err{color:#c0305a}
+.gm-radio{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14px;font-weight:700}
+.gm-radio small{display:block;color:var(--muted);font-weight:600}
+.gm-go{appearance:none;width:100%;border:0;border-radius:18px;padding:15px 18px;background:var(--grad);color:#fff;font:800 17px/1 var(--display);cursor:pointer;box-shadow:0 6px 0 #5a3fd0,0 16px 26px -12px rgba(138,108,255,.7);margin-top:6px}
+.gm-go:disabled{filter:grayscale(.7);opacity:.55;cursor:not-allowed;box-shadow:none}
+.gm-prog{margin-top:14px}
+.gm-prog[hidden],.gm-result[hidden]{display:none}
+.gm-track{height:14px;border-radius:999px;background:var(--line);overflow:hidden}
+.gm-fill{height:100%;width:0;background:var(--grad);transition:width .2s}
+.gm-pstep{margin-top:6px;font-size:13px;font-weight:800;color:#4b3aa8;display:flex;justify-content:space-between}
+.gm-result{margin-top:14px;border-radius:18px;padding:14px;background:rgba(47,211,154,.14);border:1px solid rgba(47,211,154,.4);font-size:14px;font-weight:700}
+.gm-result a{display:inline-block;margin-top:8px;font-weight:800;color:#0b6d4d}
+.gm-result.gm-bad{background:rgba(255,111,177,.14);border-color:rgba(255,111,177,.5);color:#8a1f4f}
+.gm-warn{margin-top:12px;font-size:12px;color:var(--muted);font-weight:700}
+@media(max-width:560px){.gm-grid{grid-template-columns:repeat(2,1fr);gap:10px}.gm-grid.gm-gunsgrid{grid-template-columns:repeat(2,1fr)}.gm-title{font-size:22px}.gm-dialog{padding:18px 16px 20px}}
