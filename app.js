@@ -10,6 +10,7 @@ var el={
   go:$('#go'),gnote:$('#go-note'),prog:$('#prog'),bar:$('#bar'),pt:$('#prog-t'),pp:$('#prog-p'),result:$('#result'),
   crop:$('#crop'),cv:$('#crop-cv'),cempty:$('#crop-empty'),v3d:$('#v3d-cv'),v3empty:$('#v3d-empty')
 };
+['s2','s3','s4'].forEach(function(id){var n=document.getElementById(id);if(n)n.classList.remove('is-locked')});
 var S={cfg:null,mesh:null,tris:null,plat:null,pcfg:null,ptris:null,base:null,skin:null,img:null,busy:false,zoom:1,cx:.5,cy:.5,url:null};
 var viewer=null,enc=null,t3=0,previewTimer=0;
 var FW=1536,PW=640,PN=512;
